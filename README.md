@@ -1,2 +1,2 @@
-# covid-19-neural-network
-Deep Vision Project 
+# COVID-19 Densely Neural Network
+Deep Vision Project IWR
