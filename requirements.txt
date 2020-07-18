@@ -3,3 +3,4 @@ torch~=1.5.1
 torchvision~=0.6.1
 torchxrayvision~=0.0.10
 tqdm~=4.47.0
+tensorflow~=2.2.0

@@ -1,4 +1,4 @@
-from image_loader import getDataset
+from image_loader import get_dataset
 
 if __name__ == "__main__":
-    getDataset()
+    get_dataset()
