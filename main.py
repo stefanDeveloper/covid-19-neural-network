@@ -1,6 +1,8 @@
 import binary_classifier.binary_network
+import transfer_classifier.transfer_network
 import image_loader
 import tensorflow as tf
+
 if __name__ == "__main__":
     physical_devices = tf.config.list_physical_devices('GPU')
     try:
@@ -9,4 +11,5 @@ if __name__ == "__main__":
         # Invalid device or cannot modify virtual devices once initialized.
         pass
     images, labels = image_loader.get_dataset()
-    binary_classifier.binary_network.train_model(images=images, labels=labels)
+    transfer_classifier.transfer_network.train_model(images=images, labels=labels)
+    # binary_classifier.binary_network.train_model(images=images, labels=labels)
