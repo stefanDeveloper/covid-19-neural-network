@@ -1,24 +1,68 @@
-import sys
-
-from tqdm import tqdm
-
-
-def DenseNet(nb_dense_block=4, growth_rate=32, nb_filter=64, reduction=0.0, dropout_rate=0.0, weight_decay=1e-4,
-             classes=1000, weights_path=None):
-    pass
+from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, Conv3D, concatenate, UpSampling2D, Activation, Flatten, \
+    Dense, Dropout, ZeroPadding2D
+from tensorflow.python.keras.models import Model, Sequential
+from tensorflow.python.keras.optimizers import Adam
+from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.python.keras.preprocessing.image import ImageDataGenerator
 
 
-def train_model(dataset):
-    classes = len(dataset.pathologies)
-    model = DenseNet(classes=classes)
+def DenseNet(weights_path=None):
+    model = Sequential()
+    model.add(ZeroPadding2D((1, 1), input_shape=(224, 224, 1)))
+    model.add(Conv2D(32, (3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
-    for i in tqdm(range(len(dataset))):
-        idx = len(dataset) - i - 1
-        try:
-            a = dataset[idx]
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
-        except KeyboardInterrupt:
-            break
-        except:
-            print("Error with {}".format(i) + dataset.csv.iloc[idx].filename)
-            print(sys.exc_info()[1])
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(256, (3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(256, (3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(256, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(ZeroPadding2D((1, 1)))
+    model.add(Conv2D(512, (3, 3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+
+    model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
+    model.add(Dense(4096))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(4096))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+    model.add(Activation('softmax'))
+    model.add(Dense(19))
+
+    if weights_path:
+        model.load_weights(weights_path)
+
+    return model
+
+
+def train_model(images, labels):
+    print('[INFO] Train network')
+    model = DenseNet()
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.fit(images, labels, epochs=50)
+    model.save('model')
