@@ -1,11 +1,8 @@
-
-import tensorflow as ts
-from tensorflow.keras.losses import SparseCategoricalCrossentropy
-from tensorflow.python.keras import Input
+from tensorflow import keras
 from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, Conv3D, concatenate, UpSampling2D, Activation, Flatten, \
     Dense, Dropout
-from tensorflow.python.keras.losses import BinaryCrossentropy
 from tensorflow.python.keras.models import Model, Sequential
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -33,12 +30,20 @@ def DenseNet():
     return model
 
 
-
 def train_model(images, labels):
     print('[INFO] Train network')
     model = DenseNet()
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    model.fit(images, labels, epochs=50, verbose=1)
-    model.save('model')
-    #print(model.predict(images[50:100]))
-    #print(labels[50:100])
+    history = model.fit(images, labels, epochs=50, verbose=1, validation_split=0.25, )
+    model.save('model_simpleCNN_bin_covid')
+
+    # Plot training & validation accuracy values
+    plt.plot(np.arange(0, 50), history.history["loss"], label="train_loss")
+    plt.plot(np.arange(0, 50), history.history["val_loss"], label="val_loss")
+    plt.plot(np.arange(0, 50), history.history["accuracy"], label="train_acc")
+    plt.plot(np.arange(0, 50), history.history["val_accuracy"], label="val_acc")
+    plt.title("Training Loss and Accuracy on COVID-19 Dataset")
+    plt.xlabel("Epoch #")
+    plt.ylabel("Loss/Accuracy")
+    plt.legend(loc="lower left")
+    plt.show()
