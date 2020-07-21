@@ -65,11 +65,10 @@ def plot_examples(data):
     print("Min: {}".format(torch.min(data.data)))
     print("Dtype: {}".format(data.data.dtype))
     print("Mean: {}".format(torch.mean(data.data.float())))
-    pass
 
 
 def pca():
-    data = image_loader.get_dataset()
+    data = image_loader.get_covid_dataset()
 
     plot_examples(data)
     pcs = do_pca(data)
