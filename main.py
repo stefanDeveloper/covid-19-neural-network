@@ -10,6 +10,8 @@ if __name__ == "__main__":
     except:
         # Invalid device or cannot modify virtual devices once initialized.
         pass
-    images, labels = image_loader.get_dataset()
-    transfer_classifier.transfer_network.train_model(images=images, labels=labels)
+    images, labels = image_loader.get_nih_dataset()
+    model = transfer_classifier.transfer_network.train_model(images=images, labels=labels)
+    images2, labels2 = image_loader.get_covid_dataset(covid_19_labels=True)
+    transfer_classifier.transfer_network.train_using_pretrained_model(images=images2, labels=labels2, base_model=model)
     # binary_classifier.binary_network.train_model(images=images, labels=labels)
