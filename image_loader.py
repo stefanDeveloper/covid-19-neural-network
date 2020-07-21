@@ -3,6 +3,7 @@ import shutil
 import numpy as np
 import torchvision
 import torchxrayvision as xrv
+from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
 import sys
 
@@ -22,7 +23,7 @@ def get_dataset(imgpath='./data/images', csvpath='./data/metadata.csv'):
         shutil.unpack_archive(PATH + FILE_NAME, './data')
     transform = torchvision.transforms.Compose([xrv.datasets.XRayCenterCrop(),
                                                 xrv.datasets.XRayResizer(224)])
-    d_covid19 = xrv.datasets.COVID19_Dataset(views=["PA", "AP", "AP Supine"],
+    d_covid19 = xrv.datasets.COVID19_Dataset(views=["PA"],
                                              imgpath=imgpath,
                                              transform=transform,
                                              csvpath=csvpath)
@@ -31,17 +32,20 @@ def get_dataset(imgpath='./data/images', csvpath='./data/metadata.csv'):
     images = []
     labels = []
     print('[INFO] Prepare labels and images')
-    for i in tqdm(range(10)):
+    for i in tqdm(range(612)):
         idx = len(d_covid19) - i - 1
         try:
             a = d_covid19[idx]
             labels.append(a['lab'][2])
-            images.append(a['img'].reshape(224, 224, 1))
+            images.append(a['img'].reshape(224 * 224))
         except KeyboardInterrupt:
             break
         except:
             print("Error with {}".format(i) + d_covid19.csv.iloc[idx].filename)
             print(sys.exc_info()[1])
     images = np.array(images)
+    scaler = MinMaxScaler(feature_range=(-1,1))
+    images = scaler.fit_transform(images)
+    images = images.reshape(612, 224, 224, 1)
     labels = np.array(labels)
     return images, labels
