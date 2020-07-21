@@ -10,7 +10,7 @@ from tqdm import tqdm
 FILE_NAME = 'covid-19-dataset.tar.gz'
 PATH = './data/'
 
-def get_covid_dataset(img_path='./data/nih_images', csv_path='./data/metadata2.csv'):
+def get_nih_dataset(img_path='./data/nih_images', csv_path='./data/metadata2.csv'):
     print('[INFO] Start building dataset')
     if not os.path.exists(img_path):
         shutil.unpack_archive(PATH + FILE_NAME, './data')
