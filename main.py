@@ -19,11 +19,11 @@ if __name__ == "__main__":
     images_nih, labels_nih = image_loader.get_nih_dataset()
     images_covid, labels_covid = image_loader.get_covid_dataset()
 
-    binary_classifier.binary_network.train_model(images=images_covid, labels=labels_covid, epochs=EPOCHS)
+    # binary_classifier.binary_network.train_model(images=images_covid, labels=labels_covid, epochs=EPOCHS)
 
-    model = transfer_classifier.transfer_network.train_model(images=images_nih, labels=labels_nih,
-                                                             epochs=EPOCHS)
-    # model = keras.models.load_model('model_multipleCNN_bin_covid')
+    # model = transfer_classifier.transfer_network.train_model(images=images_nih, labels=labels_nih,
+    #                                                         epochs=EPOCHS)
+    model = keras.models.load_model('model_multipleCNN_bin_covid')
     labels_covid = fill_labels(labels_covid)
     transfer_classifier.transfer_network.train_using_pretrained_model(images=images_covid,
                                                                       labels=labels_covid,

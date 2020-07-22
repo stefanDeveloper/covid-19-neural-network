@@ -43,7 +43,7 @@ def train_model(images, labels, epochs=10):
     print('[INFO] Save network')
     model.save('model_multipleCNN_bin_covid')
     model.summary()
-    plot_binary_metric(epochs, history, 'multiple_model.pdf')
+    plot_binary_metric(epochs, history, 'multiple_model.pdf', "Training Loss and Accuracy on NIH Dataset")
     return model
 
 
@@ -60,12 +60,12 @@ def train_binary_using_pretrained_model(images, labels, model, epochs=10):
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
     history = model.fit(images, labels, epochs=epochs, validation_split=0.1, workers=12)
     model.summary()
-    print("[INFO] evaluating after fine-tuning network...")
-    plot_binary_metric(epochs, history, 'binary_pretrained_model.pdf')
+    print('[INFO] evaluating after fine-tuning network...')
+    plot_binary_metric(epochs, history, 'binary_pretrained_model.pdf', 'Transfer learning on COVID-19 Dataset')
 
 
 def train_using_pretrained_model(images, labels, model, epochs=10):
-    print("[INFO] evaluating after fine-tuning network head...")
+    print('[INFO] evaluating after fine-tuning network head...')
 
     for layer in model.layers:
         layer.trainable = False
@@ -74,15 +74,15 @@ def train_using_pretrained_model(images, labels, model, epochs=10):
         layer.trainable = True
 
     for layer in model.layers:
-        print("{}: {}".format(layer, layer.trainable))
+        print('{}: {}'.format(layer, layer.trainable))
 
-    print("[INFO] re-compiling model...")
-    model.compile(loss="binary_crossentropy", optimizer='adam', metrics=["binary_accuracy"])
+    print('[INFO] re-compiling model...')
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['binary_accuracy'])
 
     history = model.fit(images, labels, epochs=epochs, validation_split=0.1)
 
-    print("[INFO] evaluating after fine-tuning network...")
-    plot_binary_metric(epochs, history, 'multiple_pretrained_model.pdf')
+    print('[INFO] evaluating after fine-tuning network...')
+    plot_binary_metric(epochs, history, 'multiple_pretrained_model.pdf', 'Transfer learning on COVID-19 Dataset')
 
-    print("[INFO] Save network...")
+    print('[INFO] Save network...')
     model.save('model_finetuneCNN_bin_covid')

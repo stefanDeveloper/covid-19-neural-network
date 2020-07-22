@@ -1,6 +1,3 @@
-import os
-import shutil
-import cv2
 import numpy as np
 import torchvision
 import torchxrayvision as xrv
@@ -12,6 +9,12 @@ PATH = './data/'
 
 transform = torchvision.transforms.Compose([xrv.datasets.XRayCenterCrop(),
                                             xrv.datasets.XRayResizer(224)])
+
+
+def unison_shuffled_copies(a, b):
+    assert len(a) == len(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
 
 
 def get_nih_dataset(img_path='./data/images-224', csv_path='./data/metadata_nih.csv'):
@@ -36,7 +39,7 @@ def get_nih_dataset(img_path='./data/images-224', csv_path='./data/metadata_nih.
     labels = np.array(labels)
     z = np.zeros((len(labels), 1))
     labels = np.append(z, labels, axis=1)
-    return images, labels
+    return unison_shuffled_copies(images, labels)
 
 
 def get_covid_dataset(img_path='./data/images', csv_path='./data/metadata.csv'):
@@ -65,4 +68,4 @@ def get_covid_dataset(img_path='./data/images', csv_path='./data/metadata.csv'):
     images = images.reshape(len(d_covid19), 224, 224, 1)
     labels = np.array(labels)
 
-    return images, labels
+    return unison_shuffled_copies(images, labels)

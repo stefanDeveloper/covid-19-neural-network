@@ -37,4 +37,4 @@ def train_model(images, labels, epochs=10):
     print('[INFO] Save network')
     model.save('model_simpleCNN_bin_covid')
     model.summary()
-    plot_metric(epochs, history, 'binary_model.pdf')
+    plot_metric(epochs, history, 'binary_model.pdf', "Training Loss and Accuracy on COVID-19 Dataset")
