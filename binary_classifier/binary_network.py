@@ -33,7 +33,7 @@ def train_model(images, labels, epochs=10):
     print('[INFO] Train network')
     model = DenseNet()
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    history = model.fit(images, labels, epochs=50, verbose=1, validation_split=0.1, workers=4)
+    history = model.fit(images, labels, epochs=epochs, verbose=1, validation_split=0.1, workers=4)
     print('[INFO] Save network')
     model.save('model_simpleCNN_bin_covid')
     model.summary()

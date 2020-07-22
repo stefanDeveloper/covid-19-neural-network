@@ -24,3 +24,10 @@ def plot_metric(epochs, history):
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
     plt.show()
+
+
+def fill_labels(labels):
+    labels = labels.reshape((len(labels), 1))
+    for i in range(14):
+        z = np.zeros((len(labels), 1))
+        labels = np.append(labels, z, axis=1)

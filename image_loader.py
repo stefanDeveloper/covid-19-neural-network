@@ -18,7 +18,7 @@ def get_nih_dataset(img_path='./data/images-224', csv_path='./data/metadata_nih.
     print('[INFO] Start building dataset')
 
     d_nih = xrv.datasets.NIH_Dataset(imgpath=img_path, transform=transform,
-                                     csvpath=csv_path)
+                                     csvpath=csv_path, nrows=3000)
     print(d_nih)
     print('[INFO] End building dataset')
     images = []
@@ -34,6 +34,8 @@ def get_nih_dataset(img_path='./data/images-224', csv_path='./data/metadata_nih.
     images = scaler.fit_transform(images)
     images = images.reshape(len(d_nih), 224, 224, 1)
     labels = np.array(labels)
+    z = np.zeros((len(labels), 1))
+    labels = np.append(z, labels, axis=1)
     return images, labels
 
 
@@ -56,6 +58,7 @@ def get_covid_dataset(img_path='./data/images', csv_path='./data/metadata.csv'):
         a = d_covid19[idx]
         labels.append(a['lab'][2])
         images.append(a['img'].reshape(224 * 224))
+
     images = np.array(images)
     scaler = MinMaxScaler(feature_range=(-1, 1))
     images = scaler.fit_transform(images)
