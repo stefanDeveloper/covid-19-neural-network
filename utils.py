@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_binary_metric(epochs, history):
+def plot_binary_metric(epochs, history, name):
     plt.plot(np.arange(0, epochs), history.history["loss"], label="train_loss")
     plt.plot(np.arange(0, epochs), history.history["val_loss"], label="val_loss")
     plt.plot(np.arange(0, epochs), history.history["binary_accuracy"], label="train_acc")
@@ -11,10 +11,11 @@ def plot_binary_metric(epochs, history):
     plt.xlabel("Epoch")
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
+    plt.savefig(name)
     plt.show()
 
 
-def plot_metric(epochs, history):
+def plot_metric(epochs, history, name):
     plt.plot(np.arange(0, epochs), history.history["loss"], label="train_loss")
     plt.plot(np.arange(0, epochs), history.history["val_loss"], label="val_loss")
     plt.plot(np.arange(0, epochs), history.history["accuracy"], label="train_acc")
@@ -23,6 +24,7 @@ def plot_metric(epochs, history):
     plt.xlabel("Epoch")
     plt.ylabel("Loss/Accuracy")
     plt.legend(loc="lower left")
+    plt.savefig(name)
     plt.show()
 
 
@@ -31,3 +33,4 @@ def fill_labels(labels):
     for i in range(14):
         z = np.zeros((len(labels), 1))
         labels = np.append(labels, z, axis=1)
+    return labels

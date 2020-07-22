@@ -1,8 +1,9 @@
-from tensorflow.python.keras import Input
-from tensorflow.python.keras.layers import Conv2D, MaxPool2D, Activation, Flatten, \
-    Dense, Dropout
-from tensorflow.python.keras.models import Sequential, Model
-from tensorflow.python.keras.optimizers import Adam
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Flatten
+from tensorflow.python.keras import Sequential, Input
+from tensorflow.python.keras.layers import Activation, Conv2D, MaxPool2D
+from tensorflow.python.keras.models import Model
 
 from utils import plot_binary_metric
 
@@ -42,30 +43,46 @@ def train_model(images, labels, epochs=10):
     print('[INFO] Save network')
     model.save('model_multipleCNN_bin_covid')
     model.summary()
-    plot_binary_metric(epochs, history)
+    plot_binary_metric(epochs, history, 'multiple_model.pdf')
     return model
 
 
-def train_using_pretrained_model(images, labels, base_model, epochs=10):
-    print("[INFO] evaluating after fine-tuning network head...")
-
-    for layer in base_model.layers:
+def train_binary_using_pretrained_model(images, labels, model, epochs=10):
+    inputs = Input(shape=(224, 224, 1))
+    for layer in model.layers:
         layer.trainable = False
 
-    for layer in base_model.layers[9:]:
+    for layer in model.layers[9:]:
+        layer.trainable = True
+    x = model(inputs)
+    outputs = Dense(1)(x)
+    model = Model(inputs, outputs)
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
+    history = model.fit(images, labels, epochs=epochs, validation_split=0.1, workers=12)
+    model.summary()
+    print("[INFO] evaluating after fine-tuning network...")
+    plot_binary_metric(epochs, history, 'binary_pretrained_model.pdf')
+
+
+def train_using_pretrained_model(images, labels, model, epochs=10):
+    print("[INFO] evaluating after fine-tuning network head...")
+
+    for layer in model.layers:
+        layer.trainable = False
+
+    for layer in model.layers[9:]:
         layer.trainable = True
 
-    for layer in base_model.layers:
+    for layer in model.layers:
         print("{}: {}".format(layer, layer.trainable))
 
     print("[INFO] re-compiling model...")
-    opt = Adam(lr=1e-5, momentum=0.9)
-    base_model.compile(loss="binary_crossentropy", optimizer=opt, metrics=["binary_accuracy"])
+    model.compile(loss="binary_crossentropy", optimizer='adam', metrics=["binary_accuracy"])
 
-    history = base_model.fit(images, labels, epochs=epochs, validation_split=0.1)
+    history = model.fit(images, labels, epochs=epochs, validation_split=0.1)
 
     print("[INFO] evaluating after fine-tuning network...")
-    plot_binary_metric(epochs, history)
+    plot_binary_metric(epochs, history, 'multiple_pretrained_model.pdf')
 
     print("[INFO] Save network...")
-    base_model.save('model_finetuneCNN_bin_covid')
+    model.save('model_finetuneCNN_bin_covid')

@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import image_loader
 
+
 def do_pca(data):
     '''Returns matrix [784x784] whose columns are the sorted eigenvectors.
        Eigenvectors (prinicipal components) are sorted according to their
@@ -25,21 +26,23 @@ def do_pca(data):
 
     return sorted_eigenVectors
 
+
 def plot_pcs(sorted_eigenVectors, num=10):
     '''Plots the first ``num`` eigenVectors as images.'''
     fig = plt.figure()
     for i in range(num):
-        img = sorted_eigenVectors[:,i].reshape(28, 28)
+        img = sorted_eigenVectors[:, i].reshape(28, 28)
         plt.subplot(5, 2, i + 1)
         plt.imshow(img.real)
     fig.show()
 
+
 def plot_projection(sorted_eigenVectors, data):
     '''Projects ``data`` onto the first two ``sorted_eigenVectors`` and makes
     a scatterplot of the resulting points'''
-    ev = [sorted_eigenVectors[:,0], sorted_eigenVectors[:,1]]
-    X = np.dot(data.data.reshape(60000,784), ev[0])
-    Y = np.dot(data.data.reshape(60000,784), ev[1])
+    ev = [sorted_eigenVectors[:, 0], sorted_eigenVectors[:, 1]]
+    X = np.dot(data.data.reshape(60000, 784), ev[0])
+    Y = np.dot(data.data.reshape(60000, 784), ev[1])
 
     #    plt.subplot(5, 2, i + 1)
     #    plt.tight_layout()
@@ -47,8 +50,9 @@ def plot_projection(sorted_eigenVectors, data):
     #    Y = [x.imag for x in data_on_pcs[i]]
     #    plt.scatter(X, Y)
     fig = plt.figure()
-    plt.scatter(X,Y,c=[y for x,y in data])
+    plt.scatter(X, Y, c=[y for x, y in data])
     fig.show()
+
 
 def plot_examples(data):
     fig = plt.figure()
