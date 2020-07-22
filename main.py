@@ -3,6 +3,9 @@ import transfer_classifier.transfer_network
 import image_loader
 import tensorflow as tf
 
+EPOCHS = 50
+
+
 if __name__ == "__main__":
     physical_devices = tf.config.list_physical_devices('GPU')
     try:

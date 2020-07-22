@@ -41,6 +41,7 @@ def get_covid_dataset(img_path='./data/images', csv_path='./data/metadata.csv', 
     d_covid19 = xrv.datasets.COVID19_Dataset(views=["PA"],
                                              imgpath=img_path,
                                              transform=transform,
+                                             pure_labels=True,
                                              csvpath=csv_path)
     print('[INFO] End building dataset')
     images = []
