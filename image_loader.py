@@ -37,6 +37,7 @@ def get_nih_dataset(img_path='./data/images-224', csv_path='./data/metadata_nih.
     images = scaler.fit_transform(images)
     images = images.reshape(len(d_nih), 224, 224, 1)
     labels = np.array(labels)
+    # Add column to labels in order to make it compatible with other dataset.
     z = np.zeros((len(labels), 1))
     labels = np.append(z, labels, axis=1)
     return unison_shuffled_copies(images, labels)
