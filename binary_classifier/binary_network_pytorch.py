@@ -5,20 +5,20 @@ import torch.utils.data as data_utils
 
 LEARNING_RATE = 0.001
 
-
 class Net(nn.Module):
 
     def __init__(self):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(6400, 32, 3)
-        self.conv2 = nn.Conv2d(32, 3, 3)
-        self.conv2 = nn.Conv2d(64, 3, 3)
+        self.conv1 = nn.Conv2d(1, 32, 3)
+        self.conv2 = nn.Conv2d(32, 64, 3)
+        self.conv3 = nn.Conv2d(64, 128, 3)
         # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(16 * 6 * 6, 64)  # 6*6 from image dimension
-        self.fc2 = nn.Linear(64, 84)
+        self.fc1 = nn.Linear(128 * 26 * 26, 120)  # 6*6 from image dimension
+        self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 1)
 
         self.dropout = nn.Dropout(p=0.5)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         x = F.max_pool2d(F.relu(self.conv1(x)), (2, 2))
@@ -32,7 +32,7 @@ class Net(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.dropout(x)
         x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = self.sigmoid(self.fc3(x))
 
         return x
 
@@ -48,7 +48,7 @@ def train_model(images, labels, epochs=10):
     net = Net()
 
     # Loss and optimizer
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
     train_data = []
     for i in range(len(images)):
@@ -61,7 +61,8 @@ def train_model(images, labels, epochs=10):
     for epoch in range(epochs):
         for i, (images, labels) in enumerate(train_loader):
             # Move tensors to the configured device
-            images = images.reshape(-1, 28 * 28)
+            #images = images.reshape(-1, 224 * 224)
+            images = images.reshape(len(images), 1, 224, 224)
             labels = labels
 
             # Forward pass
@@ -83,7 +84,7 @@ def train_model(images, labels, epochs=10):
         correct = 0
         total = 0
         for images, labels in train_loader:
-            images = images.reshape(-1, 28 * 28)
+            # images = images.reshape(-1, 224 * 224)
             labels = labels
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
