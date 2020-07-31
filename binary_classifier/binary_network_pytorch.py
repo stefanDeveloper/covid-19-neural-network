@@ -5,6 +5,7 @@ import torch.utils.data as data_utils
 
 LEARNING_RATE = 0.001
 
+
 class Net(nn.Module):
 
     def __init__(self):
@@ -12,8 +13,8 @@ class Net(nn.Module):
         self.conv1 = nn.Conv2d(1, 32, 3)
         self.conv2 = nn.Conv2d(32, 64, 3)
         self.conv3 = nn.Conv2d(64, 128, 3)
-        # an affine operation: y = Wx + b
-        self.fc1 = nn.Linear(128 * 26 * 26, 120)  # 6*6 from image dimension
+
+        self.fc1 = nn.Linear(128 * 26 * 26, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 1)
 
@@ -50,18 +51,20 @@ def train_model(images, labels, epochs=10):
     # Loss and optimizer
     criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
+
     train_data = []
+
     for i in range(len(images)):
         train_data.append([images[i], labels[i]])
 
     train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=100)
 
     # Train the model
+    net.train()
     total_step = len(train_loader)
     for epoch in range(epochs):
         for i, (images, labels) in enumerate(train_loader):
             # Move tensors to the configured device
-            #images = images.reshape(-1, 224 * 224)
             images = images.reshape(len(images), 1, 224, 224)
             labels = labels
 
@@ -74,17 +77,17 @@ def train_model(images, labels, epochs=10):
             loss.backward()
             optimizer.step()
 
-            if (i + 1) % 100 == 0:
-                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
-                      .format(epoch + 1, epochs, i + 1, total_step, loss.item()))
+            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
+                  .format(epoch + 1, epochs, i + 1, total_step, loss.item()))
 
     # Test the model
     # In test phase, we don't need to compute gradients (for memory efficiency)
+    net.eval()
     with torch.no_grad():
         correct = 0
         total = 0
         for images, labels in train_loader:
-            # images = images.reshape(-1, 224 * 224)
+            images = images.reshape(len(images), 1, 224, 224)
             labels = labels
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
@@ -94,4 +97,4 @@ def train_model(images, labels, epochs=10):
         print('Accuracy of the network on the 10000 test images: {} %'.format(100 * correct / total))
 
     # Save the model checkpoint
-    torch.save(net.state_dict(), 'model.ckpt')
+    torch.save(net.state_dict(), './models/model_simpleCNN_bin_covid.ckpt')
