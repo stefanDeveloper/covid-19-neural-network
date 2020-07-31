@@ -1,5 +1,5 @@
-# COVID-19 Convolutional Neural Network
-Deep Vision Project IWR
+# COVID-19 CNN
+Deep Vision Project IWR University Heidelberg
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
@@ -15,27 +15,20 @@ Deep Vision Project IWR
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
-* [Usage](#usage)
 * [Roadmap](#roadmap)
 * [License](#license)
-* [Contact](#contact)
-* [Acknowledgements](#acknowledgements)
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-Here's a blank template to get started:
-**To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`github_username`, `repo`, `twitter_handle`, `email`
-
+Project has been developed as final exam for Deep Vision. Detection of infected patients is an important task, expecially with the current Covid-19 pandemic. We want to explore the possibility of applying machine learning techniques to determine whether a patient is infected based on a X-Ray images of his lungs.
 
 ### Built With
 
-* []()
-* []()
-* []()
+* [PyTorch](https://pytorch.org/)
+* [COVID-19 image data collection](https://github.com/ieee8023/covid-chestxray-dataset)
+* [NIH](https://www.kaggle.com/nih-chest-xrays/data)
+* [Torchxrayvision](https://github.com/mlmed/torchxrayvision)
 
 
 
@@ -46,33 +39,31 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+First, you need to download the NIH dataset. You can use [aria2c](https://github.com/aria2/aria2).
+* aria2c
 ```sh
-npm install npm@latest -g
+aria2c NIH-e615d3aebce373f1dc8bd9d11064da55bdadede0.torrent
 ```
+* Unzip images
+```sh
+tar -xzf images-224.tar.gz
+```
+* Move images
+```sh
+mv ./images-224 {PATH_TO_DATA_FOLDER}/data/images-nih
+```
+
 
 ### Installation
  
 1. Clone the repo
 ```sh
-git clone https://github.com/github_username/repo.git
+git clone https://github.com/stefanDeveloper/covid-19-neural-network.git
 ```
-2. Install NPM packages
+2. Run main
 ```sh
-npm install
+python main.py
 ```
-
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -85,28 +76,6 @@ See the [open issues](https://github.com/github_username/repo/issues) for a list
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
-
-
-<!-- CONTACT -->
-## Contact
-
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email
-
-Project Link: [https://github.com/github_username/repo](https://github.com/github_username/repo)
-
-
-
-<!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
-
-* []()
-* []()
-* []()
-
-
-
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
