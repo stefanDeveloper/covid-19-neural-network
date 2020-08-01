@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as data_utils
+from sklearn.model_selection import train_test_split
 
 LEARNING_RATE = 0.001
 
@@ -52,15 +53,15 @@ def train_model(images, labels, epochs=10):
     criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
-    train_data = []
-
+    data = []
     for i in range(len(images)):
-        train_data.append([images[i], labels[i]])
+        data.append([images[i], labels[i]])
+
+    train_data, test_data = train_test_split(data, test_size=0.2)
 
     train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=100)
 
     # Train the model
-    net.train()
     total_step = len(train_loader)
     for epoch in range(epochs):
         for i, (images, labels) in enumerate(train_loader):
@@ -81,12 +82,13 @@ def train_model(images, labels, epochs=10):
                   .format(epoch + 1, epochs, i + 1, total_step, loss.item()))
 
     # Test the model
-    # In test phase, we don't need to compute gradients (for memory efficiency)
+    test_loader = torch.utils.data.DataLoader(test_data, shuffle=True, batch_size=100)
+
     net.eval()
     with torch.no_grad():
         correct = 0
         total = 0
-        for images, labels in train_loader:
+        for images, labels in test_loader:
             images = images.reshape(len(images), 1, 224, 224)
             labels = labels
             outputs = net(images)
