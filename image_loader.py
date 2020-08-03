@@ -86,7 +86,7 @@ def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-
     images = np.array(images)
     scalar = MinMaxScaler(feature_range=(0, 1))
     images = scalar.fit_transform(images)
-    images = images.reshape(len(d_covid19), 224, 224, 1)
+    images = images.reshape(len(labels), 224, 224, 1)
 
     labels = np.array(labels)
 
