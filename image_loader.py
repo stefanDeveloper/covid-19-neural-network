@@ -64,11 +64,23 @@ def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-
     images = []
     labels = []
     print('[INFO] Prepare COVID-19 labels and images')
+    true_count = 0
     for i in tqdm(range(len(d_covid19))):
         index = len(d_covid19) - i - 1
         item = d_covid19[index]
+        true_count += item['lab'][2]
         labels.append(item['lab'][2])
         images.append(item['img'].reshape(224 * 224))
+
+    if true_count > len(d_covid19)/2:
+        for i in tqdm(range(len(d_covid19))):
+            index = len(d_covid19) - i - 1
+            item = d_covid19[index]
+            if item['lab'][2] == 0:
+                labels.append(item['lab'][2])
+                images.append(item['img'].reshape(224 * 224))
+            if true_count <= len(labels) / 2:
+                break
 
     # Normalize array to 0 and 1, reshape to size, height, width and channel
     images = np.array(images)
