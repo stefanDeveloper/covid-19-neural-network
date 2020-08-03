@@ -92,11 +92,11 @@ def train_model(images, labels, epochs=10):
             images = images.reshape(len(images), 1, 224, 224)
             labels = labels
             outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
+            predicted = torch.round(outputs.data).reshape(len(labels))
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
-        print('Accuracy of the network on the 10000 test images: {} %'.format(100 * correct / total))
+        print('Accuracy of the network on the {} test images: {} %'.format(total, 100 * correct / total))
 
     # Save the model checkpoint
     torch.save(net.state_dict(), './models/model_simpleCNN_bin_covid.ckpt')
