@@ -14,11 +14,17 @@ class Net(nn.Module):
         self.conv1 = nn.Conv2d(1, 32, 3)
         self.conv2 = nn.Conv2d(32, 64, 3)
         self.conv3 = nn.Conv2d(64, 128, 3)
+
         self.pool = nn.MaxPool2d(2, 2)
 
-        self.fc1 = nn.Linear(128 * 26 * 26, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 15)
+        self.fc1 = nn.Linear(128 * 26 * 26, 512)
+        self.fc2 = nn.Linear(512, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.out = nn.Linear(64, 15)
+
+        self.bn1 = nn.BatchNorm1d(120)
+        self.bn2 = nn.BatchNorm1d(84)
+        self.bn3 = nn.BatchNorm1d(15)
 
         self.dropout = nn.Dropout(p=0.5)
         self.sigmoid = nn.Sigmoid()
@@ -34,9 +40,11 @@ class Net(nn.Module):
         x = x.view(-1, 128 * 26 * 26)
 
         x = F.relu(self.fc1(x))
-        # x = self.dropout(x)
+        x = self.dropout(x)
         x = F.relu(self.fc2(x))
-        x = self.sigmoid(self.fc3(x))
+        x = F.relu(self.fc3(x))
+        x = self.sigmoid(x)
+        x = self.out(x)
 
         return x
 
@@ -52,7 +60,7 @@ def train_model(images, labels, epochs=10):
     net = Net()
 
     # Loss and optimizer
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
 
     data = []
@@ -61,7 +69,7 @@ def train_model(images, labels, epochs=10):
 
     train_data, test_data = train_test_split(data, test_size=0.2)
 
-    train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=32)
+    train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=100)
 
     # Train the model
     total_step = len(train_loader)
@@ -70,10 +78,9 @@ def train_model(images, labels, epochs=10):
             # Move tensors to the configured device
             images = images.reshape(len(images), 1, 224, 224)
             labels = labels
-
             # Forward pass
             outputs = net(images)
-            loss = criterion(outputs, torch.max(labels, 1)[1])
+            loss = criterion(outputs, labels)
 
             # Backward and optimize
             optimizer.zero_grad()
