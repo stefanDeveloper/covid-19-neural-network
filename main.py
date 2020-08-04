@@ -1,22 +1,10 @@
-import tensorflow as tf
-from tensorflow import keras
-
 import binary_classifier.binary_network_pytorch
 import image_loader
-import transfer_classifier.transfer_network_tensorflow
-from utils import fill_labels
 
 EPOCHS = 50
 
 if __name__ == "__main__":
-    physical_devices = tf.config.list_physical_devices('GPU')
-    try:
-        tf.config.experimental.set_memory_growth(physical_devices[0], True)
-    except:
-        # Invalid device or cannot modify virtual devices once initialized.
-        pass
-
-    images_nih, labels_nih = image_loader.get_nih_dataset()
+    #images_nih, labels_nih = image_loader.get_nih_dataset()
     images_covid, labels_covid = image_loader.get_covid_dataset()
 
     binary_classifier.binary_network_pytorch.train_model(images=images_covid, labels=labels_covid, epochs=EPOCHS)
