@@ -10,9 +10,10 @@ def do_pca(data):
        eigenvalues in decreasing order.
     '''
 
-    mnist_vectors, labels = convert_imgs_to_vector(data)
-    prepare_data(mnist_vectors)
-
+    mnist_vectors, labels = data
+    mnist_vectors = mnist_vectors.reshape(20,224*224).astype("float32")
+    mnist_vectors = prepare_data(mnist_vectors).reshape(20, 224*224)
+    print(mnist_vectors.shape)
     # compute covariance matrix of data with shape [784x784]
     cov = np.cov(mnist_vectors.T)
 
@@ -25,6 +26,16 @@ def do_pca(data):
     sorted_eigenVectors = eigVec[:, sorted_index]
 
     return sorted_eigenVectors
+
+def prepare_data(data):
+    '''Centers the data around 0 and rescales it to the range of ``[-1, 1]``.
+    '''
+    nom = (data - data.min(axis=0)) * (1 - -1)
+    denom = data.max(axis=0) - data.min(axis=0)
+    denom[denom == 0] = 1
+    return -1 + nom / denom
+
+    return data
 
 
 def plot_pcs(sorted_eigenVectors, num=10):
@@ -59,22 +70,23 @@ def plot_examples(data):
     for i in range(10):
         plt.subplot(5, 2, i + 1)
         plt.tight_layout()
-        plt.imshow(data[i][0], cmap='gray', interpolation='none')
-        plt.title(data[i][1])
+        plt.imshow(data[i].reshape(224, 224), cmap='gray', interpolation='none')
+        #plt.title(data[i][1])
         plt.xticks([])
         plt.yticks([])
     # Also print some statistics
-    print("Shape: {}".format(data.data.shape))
-    print("Max: {}".format(torch.max(data.data)))
-    print("Min: {}".format(torch.min(data.data)))
-    print("Dtype: {}".format(data.data.dtype))
-    print("Mean: {}".format(torch.mean(data.data.float())))
+    #print("Shape: {}".format(data.data.shape))
+    #print("Max: {}".format(torch.max(data.data)))
+    #print("Min: {}".format(torch.min(data.data)))
+    #print("Dtype: {}".format(data.data.dtype))
+    #print("Mean: {}".format(torch.mean(data.data.float())))
+    fig.show()
 
 
 def pca():
     data = image_loader.get_covid_dataset()
 
-    plot_examples(data)
+    plot_examples(data[0])
     pcs = do_pca(data)
 
     plot_pcs(pcs)
