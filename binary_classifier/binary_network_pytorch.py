@@ -89,8 +89,8 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
     torch.save(net.state_dict(), path)
 
     # ROC
-    true = np.array(roc_true)
-    score = np.array(roc_score)
+    true = np.array(roc_true).reshape(-1)
+    score = np.array(roc_score).reshape(-1)
     fpr, tpr, thresholds = metrics.roc_curve(true, score)
 
     plot_roc_binary(fpr, tpr, './results/simple_classifier_roc.pdf')
