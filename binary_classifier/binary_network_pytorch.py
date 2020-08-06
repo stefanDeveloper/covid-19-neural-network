@@ -1,13 +1,13 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.utils.data as data_utils
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
-import numpy as np
+
 from binary_classifier.model import Net
 from dataset import Dataset
 from utils import plot_loss, plot_acc, plot_roc_binary
-import matplotlib.pyplot as plt
 
 
 def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_size=32):
@@ -79,8 +79,8 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
                 if i % total_step == 0:
                     test_acc.append(accuracy)
                     test_loss.append(loss)
-                    roc_score.append(predicted)
-                    roc_true.append(labels)
+                    roc_score.append(np.array(predicted).reshape(-1))
+                    roc_true.append(np.array(labels).reshape(-1))
 
                 print('[Test] Epoch [{}/{}], Step [{}/{}], Test-Loss: {:.4f}, Test-Acc: {:.2f}'
                       .format(epoch + 1, epochs, i + 1, total_step, loss.item(), accuracy))
@@ -89,8 +89,8 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
     torch.save(net.state_dict(), path)
 
     # ROC
-    true = np.array(roc_true).reshape(-1)
-    score = np.array(roc_score).reshape(-1)
+    true = np.array(roc_true)
+    score = np.array(roc_score)
     fpr, tpr, thresholds = metrics.roc_curve(true, score)
 
     plot_roc_binary(fpr, tpr, './results/simple_classifier_roc.pdf')
