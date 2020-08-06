@@ -8,7 +8,7 @@ from dataset import Dataset
 from transfer_classifier.model import Net
 
 
-def train_model(images, labels, epochs=10, learning_rate=0.0001, batch_size=32):
+def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_size=32):
     net = Net()
 
     # Loss and optimizer
@@ -62,24 +62,48 @@ def train_model(images, labels, epochs=10, learning_rate=0.0001, batch_size=32):
         print('Accuracy of the network on the {} test images: {} %'.format(total, 100 * correct / total))
 
     # Save the model checkpoint
-    torch.save(net.state_dict(), './models/model_multiCNN_bin_covid.ckpt')
+    torch.save(net.state_dict(), path)
+    return net
 
 
-def train_using_pretrained_model(images, labels, net, epochs=10, learning_rate=0.0001, batch_size=32):
+def train_using_pretrained_model(images, labels, path, net, epochs=10, learning_rate=0.0001, batch_size=32):
+    best_accuracy = 0.0
+    criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
+    # Training data
     X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=6)
     train_data = Dataset(X_train, y_train)
     train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=batch_size)
 
-    for images, labels in iter(train_loader):
-        images = images
-        labels = labels
-        optimizer.zero_grad()
-        outputs = net(images)
-        loss = F.cross_entropy(outputs, labels)
-        loss.backward()
-        optimizer.step()
+    # Testing data
+    test_data = Dataset(X_test, y_test)
+    test_loader = torch.utils.data.DataLoader(test_data, shuffle=True, batch_size=batch_size)
 
-    # Save the model checkpoint
-    torch.save(net.state_dict(), './models/model_multiCNN_bin_covid.ckpt')
+    for epoch in range(epochs):
+        for images, labels in iter(train_loader):
+            images = images.reshape(len(images), 1, 224, 224)
+            labels = labels
+            optimizer.zero_grad()
+            outputs = net(images)
+            loss = criterion(outputs.double(), labels)
+            loss.backward()
+            optimizer.step()
+
+        total = 0.0
+        correct = 0.0
+        for images, labels in iter(test_loader):
+            images = images.reshape(len(images), 1, 224, 224)
+            labels = labels
+            outputs = net(images)
+            predicted = torch.round(outputs.data)
+            total += labels.size(0) * labels.size(1)
+            correct += (predicted == labels).sum().item()
+
+        test_accuracy = 100 * correct / total
+
+        print('Epoch [{}/{}], Acc: {:.4f}'.format(epoch + 1, epochs, test_accuracy))
+
+        if test_accuracy > best_accuracy:
+            torch.save(net.state_dict(), path)
+            best_accuracy = test_accuracy

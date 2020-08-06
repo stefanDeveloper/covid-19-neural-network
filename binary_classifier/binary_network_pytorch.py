@@ -7,7 +7,7 @@ from binary_classifier.model import Net
 from dataset import Dataset
 
 
-def train_model(images, labels, epochs=10, learning_rate=0.0001, batch_size=32):
+def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_size=32):
     net = Net()
 
     # Loss and optimizer
@@ -63,4 +63,6 @@ def train_model(images, labels, epochs=10, learning_rate=0.0001, batch_size=32):
         print('Accuracy of the network on the {} test images: {} %'.format(total, 100 * correct / total))
 
     # Save the model checkpoint
-    torch.save(net.state_dict(), './models/model_simpleCNN_bin_covid.ckpt')
+    torch.save(net.state_dict(), path)
+
+    return net
