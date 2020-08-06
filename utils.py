@@ -1,6 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def plot_roc_binary(fpr, tpr, path):
+    plt.plot(fpr, tpr, label='RF')
+    plt.xlabel('False positive rate')
+    plt.ylabel('True positive rate')
+    plt.title('ROC curve')
+    plt.legend(loc='best')
+    plt.show()
+
+def plot_roc(roc, path):
+    plt.plot(roc, label='ROC')
+    plt.legend(frameon=False)
+    plt.ylabel('ROC')
+    plt.xlabel('Epoch')
+    plt.savefig(path)
+    plt.show()
 
 def plot_loss(train_loss, test_loss, path):
     plt.plot(train_loss, label='Training loss')

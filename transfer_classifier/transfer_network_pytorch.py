@@ -14,8 +14,10 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
     net = Net()
     train_loss, test_loss = [], []
     train_acc, test_acc = [], []
+    roc = []
+
     # Loss and optimizer
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
     X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=6)
@@ -26,9 +28,9 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
     test_loader = torch.utils.data.DataLoader(test_data, shuffle=True, batch_size=batch_size)
 
     # Train the model
-    total_step = len(train_loader)
     for epoch in range(epochs):
         net.train()
+        total_step = len(train_loader)
         for i, (images, labels) in enumerate(train_loader):
             # Move tensors to the configured device
             images = images.reshape(len(images), 1, 224, 224)
@@ -56,8 +58,6 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
                 train_acc.append(accuracy)
                 train_loss.append(loss)
 
-
-
         net.eval()
         with torch.no_grad():
             correct = 0
@@ -78,6 +78,7 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
                 if i % total_step == 0:
                     test_acc.append(accuracy)
                     test_loss.append(loss)
+                    roc.append(roc_auc_score(labels, predicted))
 
                 print('[Test] Epoch [{}/{}], Step [{}/{}], Train-Loss: {:.4f}, Train-Acc: {:.2f}'
                       .format(epoch + 1, epochs, i + 1, total_step, loss.item(), accuracy))
@@ -85,6 +86,7 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
     # Save the model checkpoint
     torch.save(net.state_dict(), path)
 
+    plot_roc(roc, './results/multiple_classifier_roc.pdf')
     plot_loss(train_loss, test_loss, './results/multiple_classifier_loss.pdf')
     plot_acc(train_acc, test_acc, './results/multiple_classifier_acc.pdf')
 
@@ -108,8 +110,8 @@ def train_using_pretrained_model(images, labels, path, net, epochs=10, learning_
     test_data = Dataset(X_test, y_test)
     test_loader = torch.utils.data.DataLoader(test_data, shuffle=True, batch_size=batch_size)
 
-    total_step = len(train_loader)
     for epoch in range(epochs):
+        total_step = len(train_loader)
         for i, (images, labels) in enumerate(train_loader):
             images = images.reshape(len(images), 1, 224, 224)
             labels = labels
@@ -161,5 +163,6 @@ def train_using_pretrained_model(images, labels, path, net, epochs=10, learning_
             torch.save(net.state_dict(), path)
             best_accuracy = test_accuracy
 
+    plot_binary_roc()
     plot_loss(train_loss, test_loss, './results/transfer_classifier_loss.pdf')
     plot_acc(train_acc, test_acc, './results/transfer_classifier_acc.pdf')
