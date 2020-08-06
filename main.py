@@ -7,7 +7,7 @@ import transfer_classifier.model
 import transfer_classifier.transfer_network_pytorch
 from utils import fill_labels
 
-EPOCHS = 50
+EPOCHS = 10
 LEARNING_RATE = 0.0001
 BATCH_SIZE = 100
 
@@ -33,7 +33,7 @@ if __name__ == "__main__":
                                                              batch_size=BATCH_SIZE,  #
                                                              path=BINARY_CLASS_MODEL_PATH)
     else:
-        transfer_model.load_state_dict(torch.load(BINARY_CLASS_MODEL_PATH))
+        binary_model.load_state_dict(torch.load(BINARY_CLASS_MODEL_PATH))
 
     # Learning on NIH
     if not os.path.exists(MULTI_CLASS_MODEL_PATH):
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     transfer_classifier.transfer_network_pytorch.train_using_pretrained_model(images=images_covid,  #
                                                                               labels=labels_covid,  #
                                                                               net=transfer_model,  #
-                                                                              epochs=30,  #
+                                                                              epochs=10,  #
                                                                               learning_rate=LEARNING_RATE,  #
-                                                                              batch_size=BATCH_SIZE,  #
+                                                                              batch_size=100,  #
                                                                               path=TRANSFER_CLASS_MODEL_PATH)

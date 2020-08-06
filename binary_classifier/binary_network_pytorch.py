@@ -5,10 +5,13 @@ from sklearn.model_selection import train_test_split
 
 from binary_classifier.model import Net
 from dataset import Dataset
+from utils import plot_loss, plot_acc
 
 
 def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_size=32):
     net = Net()
+    train_loss, test_loss = [], []
+    train_acc, test_acc = [], []
 
     # Loss and optimizer
     criterion = nn.BCELoss()
@@ -35,14 +38,18 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
             predicted = torch.round(outputs.data).reshape(len(labels))
             total = labels.size(0)
             correct = (predicted == labels).sum().item()
+            accuracy = 100 * correct / total
 
             # Backward and optimize
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Acc: {} %'
-                  .format(epoch + 1, epochs, i + 1, total_step, loss.item(), 100 * correct / total))
+            print('[Train] Epoch [{}/{}], Step [{}/{}], Train-Loss: {:.4f}, Train-Acc: {:.2f} %'
+                  .format(epoch + 1, epochs, i + 1, total_step, loss.item(), accuracy))
+
+            train_acc.append(accuracy)
+            train_loss.append(loss)
 
     # Test the model
     test_data = Dataset(X_test, y_test)
@@ -56,11 +63,21 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
             images = images.reshape(len(images), 1, 224, 224)
             labels = labels
             outputs = net(images)
+
+            loss = criterion(outputs, labels)
+
             predicted = torch.round(outputs.data).reshape(len(labels))
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+            accuracy = 100 * correct / total
 
-        print('Accuracy of the network on the {} test images: {} %'.format(total, 100 * correct / total))
+            test_acc.append(accuracy)
+            test_loss.append(loss)
+
+        print('[Test] Accuracy of the network on the {} test images: {:.2f} %'.format(total, 100 * correct / total))
+
+    plot_loss(train_loss, test_loss, './results/simple_classifier_loss.pdf')
+    plot_acc(train_acc, test_acc, './results/simple_classifier_acc.pdf')
 
     # Save the model checkpoint
     torch.save(net.state_dict(), path)

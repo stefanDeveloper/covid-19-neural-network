@@ -1,30 +1,24 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 
 
-def plot_binary_metric(epochs, history, name, title):
-    plt.plot(np.arange(0, epochs), history.history["loss"], label="train_loss")
-    plt.plot(np.arange(0, epochs), history.history["val_loss"], label="val_loss")
-    plt.plot(np.arange(0, epochs), history.history["binary_accuracy"], label="train_acc")
-    plt.plot(np.arange(0, epochs), history.history["val_binary_accuracy"], label="val_acc")
-    plt.title(title)
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss/Accuracy")
-    plt.legend(loc="lower left")
-    plt.savefig(name)
+def plot_loss(train_loss, test_loss, path):
+    plt.plot(train_loss, label='Training loss')
+    plt.plot(test_loss, label='Validation loss')
+    plt.legend(frameon=False)
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.savefig(path)
     plt.show()
 
 
-def plot_metric(epochs, history, name, title):
-    plt.plot(np.arange(0, epochs), history.history["loss"], label="train_loss")
-    plt.plot(np.arange(0, epochs), history.history["val_loss"], label="val_loss")
-    plt.plot(np.arange(0, epochs), history.history["accuracy"], label="train_acc")
-    plt.plot(np.arange(0, epochs), history.history["val_accuracy"], label="val_acc")
-    plt.title(title)
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss/Accuracy")
-    plt.legend(loc="lower left")
-    plt.savefig(name)
+def plot_acc(train_acc, test_acc, path):
+    plt.plot(train_acc, label='Training Acc')
+    plt.plot(test_acc, label='Validation Acc')
+    plt.legend(frameon=False)
+    plt.ylabel('Percentage')
+    plt.xlabel('Epoch')
+    plt.savefig(path)
     plt.show()
 
 
