@@ -4,72 +4,20 @@ import torch.nn.functional as F
 import torch.utils.data as data_utils
 from sklearn.model_selection import train_test_split
 
-LEARNING_RATE = 0.001
+from dataset import Dataset
+from transfer_classifier.model import Net
 
 
-class Net(nn.Module):
-
-    def __init__(self):
-        super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, 3)
-        self.conv2 = nn.Conv2d(32, 64, 3)
-        self.conv3 = nn.Conv2d(64, 128, 3)
-
-        self.pool = nn.MaxPool2d(2, 2)
-
-        self.fc1 = nn.Linear(128 * 26 * 26, 512)
-        self.fc2 = nn.Linear(512, 128)
-        self.fc3 = nn.Linear(128, 64)
-        self.out = nn.Linear(64, 15)
-
-        self.bn1 = nn.BatchNorm1d(120)
-        self.bn2 = nn.BatchNorm1d(84)
-        self.bn3 = nn.BatchNorm1d(15)
-
-        self.dropout = nn.Dropout(p=0.5)
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-
-        x = self.pool(F.relu(self.conv2(x)))
-
-        x = self.pool(F.relu(self.conv3(x)))
-
-        # x = x.view(-1, self.num_flat_features(x))
-        x = x.view(-1, 128 * 26 * 26)
-
-        x = F.relu(self.fc1(x))
-        x = self.dropout(x)
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = self.sigmoid(x)
-        x = self.out(x)
-
-        return x
-
-    def num_flat_features(self, x):
-        size = x.size()[1:]  # all dimensions except the batch dimension
-        num_features = 1
-        for s in size:
-            num_features *= s
-        return num_features
-
-
-def train_model(images, labels, epochs=10):
+def train_model(images, labels, epochs=10, learning_rate=0.0001, batch_size=32):
     net = Net()
 
     # Loss and optimizer
-    criterion = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
+    criterion = nn.BCELoss()
+    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
-    data = []
-    for i in range(len(images)):
-        data.append([images[i], labels[i]])
-
-    train_data, test_data = train_test_split(data, test_size=0.2)
-
-    train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=100)
+    X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=6)
+    train_data = Dataset(X_train, y_train)
+    train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=batch_size)
 
     # Train the model
     total_step = len(train_loader)
@@ -80,53 +28,58 @@ def train_model(images, labels, epochs=10):
             labels = labels
             # Forward pass
             outputs = net(images)
-            loss = criterion(outputs, labels)
+            loss = criterion(outputs.double(), labels)
+
+            # Accuracy
+            predicted = torch.round(outputs.data)
+            total = labels.size(0) * labels.size(1)
+            correct = (predicted == labels).sum().item()
 
             # Backward and optimize
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
-                  .format(epoch + 1, epochs, i + 1, total_step, loss.item()))
+            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Acc: {:.4f}'
+                  .format(epoch + 1, epochs, i + 1, total_step, loss.item(), 100 * correct / total))
 
     # Test the model
-    test_loader = torch.utils.data.DataLoader(test_data, shuffle=True, batch_size=100)
+    test_data = Dataset(X_test, y_test)
+    test_loader = torch.utils.data.DataLoader(test_data, shuffle=True, batch_size=batch_size)
 
     net.eval()
     with torch.no_grad():
         correct = 0
         total = 0
-        for images, labels in test_loader:
+        for i, (images, labels) in enumerate(test_loader):
             images = images.reshape(len(images), 1, 224, 224)
             labels = labels
             outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
+            predicted = torch.round(outputs.data)
+            total += labels.size(0) * labels.size(1)
             correct += (predicted == labels).sum().item()
 
-        print('Accuracy of the network on the 10000 test images: {} %'.format(100 * correct / total))
+        print('Accuracy of the network on the {} test images: {} %'.format(total, 100 * correct / total))
 
     # Save the model checkpoint
     torch.save(net.state_dict(), './models/model_multiCNN_bin_covid.ckpt')
 
 
-def train_using_pretrained_model(images, labels, model, epochs=10):
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+def train_using_pretrained_model(images, labels, net, epochs=10, learning_rate=0.0001, batch_size=32):
+    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
-    data = []
-    for i in range(len(images)):
-        data.append([images[i], labels[i]])
-
-    train_data, test_data = train_test_split(data, test_size=0.2)
-
-    train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=100)
+    X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=6)
+    train_data = Dataset(X_train, y_train)
+    train_loader = torch.utils.data.DataLoader(train_data, shuffle=True, batch_size=batch_size)
 
     for images, labels in iter(train_loader):
         images = images
         labels = labels
         optimizer.zero_grad()
-        outputs = model(images)
+        outputs = net(images)
         loss = F.cross_entropy(outputs, labels)
         loss.backward()
         optimizer.step()
+
+    # Save the model checkpoint
+    torch.save(net.state_dict(), './models/model_multiCNN_bin_covid.ckpt')

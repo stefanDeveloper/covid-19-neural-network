@@ -12,12 +12,6 @@ transform = torchvision.transforms.Compose([xrv.datasets.XRayCenterCrop(),
                                             xrv.datasets.XRayResizer(224)])
 
 
-def mix(images, labels):
-    assert len(images) == len(labels)
-    p = np.random.permutation(len(images))
-    return images[p], labels[p]
-
-
 def get_nih_dataset(img_path='./data/images-nih', csv_path='./data/metadata_nih.csv'):
     print('[INFO] Start NIH building dataset')
 
@@ -47,8 +41,7 @@ def get_nih_dataset(img_path='./data/images-nih', csv_path='./data/metadata_nih.
     labels = np.array(labels)
     zeros = np.zeros((len(labels), 1))
     labels = np.append(zeros, labels, axis=1)
-
-    return mix(images, labels)
+    return images, labels
 
 
 def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-covid.csv'):
@@ -72,7 +65,7 @@ def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-
         labels.append(item['lab'][2])
         images.append(item['img'].reshape(224 * 224))
 
-    if true_count > len(d_covid19)/2:
+    if true_count > len(d_covid19) / 2:
         for i in tqdm(range(len(d_covid19))):
             index = len(d_covid19) - i - 1
             item = d_covid19[index]
@@ -90,4 +83,4 @@ def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-
 
     labels = np.array(labels)
 
-    return mix(images, labels)
+    return images, labels
