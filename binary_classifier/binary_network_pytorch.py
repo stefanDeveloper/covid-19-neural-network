@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 from binary_classifier.model import Net
 from dataset import Dataset
-from utils import plot_loss, plot_acc
+from utils import plot_loss, plot_acc, plot_roc_binary
 import matplotlib.pyplot as plt
 
 
@@ -92,7 +92,7 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
     # ROC
     fpr, tpr, thresholds = metrics.roc_curve(np.array(roc_true).reshape(-1), np.array(roc_score).reshape(-1))
 
-    plot_roc_bin(fpr, tpr, './results/simple_classifier_roc.pdf')
+    plot_roc_binary(fpr, tpr, './results/simple_classifier_roc.pdf')
     plot_loss(train_loss, test_loss, './results/simple_classifier_loss.pdf')
     plot_acc(train_acc, test_acc, './results/simple_classifier_acc.pdf')
 

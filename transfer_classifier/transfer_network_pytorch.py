@@ -1,13 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.utils.data as data_utils
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 
 from dataset import Dataset
 from transfer_classifier.model import Net
 import matplotlib.pyplot as plt
 
-from utils import plot_loss, plot_acc
+from utils import plot_loss, plot_acc, plot_roc
 
 
 def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_size=32):
