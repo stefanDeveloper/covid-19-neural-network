@@ -76,12 +76,11 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
                 correct += (predicted == labels).sum().item()
                 accuracy = 100 * correct / total
 
-                roc_score.append(predicted)
-                roc_true.append(labels)
-
                 if i % total_step == 0:
                     test_acc.append(accuracy)
                     test_loss.append(loss)
+                    roc_score.append(predicted)
+                    roc_true.append(labels)
 
                 print('[Test] Epoch [{}/{}], Step [{}/{}], Test-Loss: {:.4f}, Test-Acc: {:.2f}'
                       .format(epoch + 1, epochs, i + 1, total_step, loss.item(), accuracy))
@@ -90,7 +89,9 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
     torch.save(net.state_dict(), path)
 
     # ROC
-    fpr, tpr, thresholds = metrics.roc_curve(np.array(roc_true).reshape(-1), np.array(roc_score).reshape(-1))
+    true = np.array(roc_true).reshape(-1)
+    score = np.array(roc_score).reshape(-1)
+    fpr, tpr, thresholds = metrics.roc_curve(true, score)
 
     plot_roc_binary(fpr, tpr, './results/simple_classifier_roc.pdf')
     plot_loss(train_loss, test_loss, './results/simple_classifier_loss.pdf')
