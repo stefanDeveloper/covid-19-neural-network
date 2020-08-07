@@ -40,20 +40,26 @@ To get a local copy up and running follow these simple steps.
 ### Prerequisites
 
 First, you need to download the NIH dataset. You can use [aria2c](https://github.com/aria2/aria2).
-* aria2c
+* Use aria2c to download NIH dataset
 ```sh
 aria2c NIH-e615d3aebce373f1dc8bd9d11064da55bdadede0.torrent
 ```
-* Unzip images
+* Unzip NIH images
 ```sh
 tar -xzf images-224.tar.gz
 ```
-* Move images
+* Move NIH images
 ```sh
 mv ./images-224 {PATH_TO_DATA_FOLDER}/data/images-nih
 ```
-
-
+* Get COVD-19 images
+```sh
+git clone https://github.com/ieee8023/covid-chestxray-dataset.git
+```
+* Get COVD-19 images
+```sh
+mv ./images {PATH_TO_DATA_FOLDER}/data/images-covid
+```
 ### Installation
  
 1. Clone the repo
