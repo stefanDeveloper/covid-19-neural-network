@@ -37,14 +37,14 @@ def get_nih_dataset(img_path='./data/images-nih', csv_path='./data/metadata_nih.
     images = scalar.fit_transform(images)
     images = images.reshape(len(d_nih), 224, 224, 1)
 
-    # Add column to labels in order to make it compatible with other dataset.
+    # Add 5 columns to labels in order to make it compatible with other dataset.
     labels = np.array(labels)
-    zeros = np.zeros((len(labels), 1))
+    zeros = np.zeros((len(labels), 5))
     labels = np.append(zeros, labels, axis=1)
-    return images, labels
+    return images, labels.astype(np.float32)
 
 
-def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-covid.csv'):
+def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-covid.csv', binary=False):
     print('[INFO] Start COVID-19 building dataset')
 
     d_covid19 = xrv.datasets.COVID19_Dataset(views=[VIEW],
@@ -62,7 +62,10 @@ def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-
         index = len(d_covid19) - i - 1
         item = d_covid19[index]
         true_count += item['lab'][2]
-        labels.append(item['lab'][2])
+        if binary:
+            labels.append(item['lab'][2])
+        else:
+            labels.append(item['lab'])
         images.append(item['img'].reshape(224 * 224))
 
     if true_count > len(d_covid19) / 2:
@@ -70,7 +73,10 @@ def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-
             index = len(d_covid19) - i - 1
             item = d_covid19[index]
             if item['lab'][2] == 0:
-                labels.append(item['lab'][2])
+                if binary:
+                    labels.append(item['lab'][2])
+                else:
+                    labels.append(item['lab'])
                 images.append(item['img'].reshape(224 * 224))
             if true_count <= len(labels) / 2:
                 break
@@ -82,5 +88,6 @@ def get_covid_dataset(img_path='./data/images-covid', csv_path='./data/metadata-
     images = images.reshape(len(labels), 224, 224, 1)
 
     labels = np.array(labels)
-
+    if not binary:
+            print(labels.shape)
     return images, labels

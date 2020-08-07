@@ -49,7 +49,7 @@ def plot_acc(train_acc, test_acc, path, name):
 
 def fill_labels(labels):
     labels = labels.reshape((len(labels), 1))
-    for i in range(14):
+    for i in range(18):
         z = np.zeros((len(labels), 1))
         labels = np.append(labels, z, axis=1)
     return labels

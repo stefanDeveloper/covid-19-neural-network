@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from utils import plot_loss, plot_acc, plot_roc
 
 
-def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_size=32):
+def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_size=32, stand_alone=False):
     net = Net()
     train_loss, test_loss = [], []
     train_acc, test_acc = [], []
@@ -42,7 +42,7 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
 
             # Forward pass
             outputs = net(images)
-            loss = criterion(outputs.double(), labels)
+            loss = criterion(outputs, labels)
 
             # Accuracy
             predicted = torch.round(outputs.data)
@@ -74,7 +74,7 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
                 labels = labels
                 outputs = net(images)
 
-                loss = criterion(outputs.double(), labels)
+                loss = criterion(outputs, labels)
 
                 predicted = torch.round(outputs.data)
                 total += labels.size(0) * labels.size(1)
@@ -83,7 +83,7 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
 
                 if i % total_step == 0:
                     true = np.array(labels).reshape(-1)
-                    score = np.array(predicted).reshape(-1)
+                    score = np.array(outputs.data).reshape(-1)
                     roc.append(roc_auc_score(true, score))
 
                 test_acc_it.append(accuracy)
@@ -95,12 +95,13 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
             test_acc.append(np.mean(np.array(test_acc_it)))
             test_loss.append(np.mean(np.array(test_loss_it)))
 
-    # Save the model checkpoint
-    torch.save(net.state_dict(), path)
+    if stand_alone:
+        # Save the model checkpoint
+        torch.save(net.state_dict(), path)
 
-    plot_roc(roc, './results/multiple_classifier_roc.pdf', 'Multi-label Classifier NIH')
-    plot_loss(train_loss, test_loss, './results/multiple_classifier_loss.pdf', 'Multi-label Classifier NIH')
-    plot_acc(train_acc, test_acc, './results/multiple_classifier_acc.pdf', 'Multi-label Classifier NIH')
+        plot_roc(roc, './results/multi_roc_auc.pdf', 'Multi-label Classifier COVID')
+        plot_loss(train_loss, test_loss, './results/multi_loss.pdf', 'Multi-label Classifier COVID')
+        plot_acc(train_acc, test_acc, './results/multi_acc.pdf', 'Multi-label Classifier COVID')
 
     return net
 
@@ -171,7 +172,7 @@ def train_using_pretrained_model(images, labels, path, net, epochs=10, learning_
 
             if i % total_step == 0:
                 true = np.array(labels).reshape(-1)
-                score = np.array(predicted).reshape(-1)
+                score = np.array(outputs.data).reshape(-1)
                 roc.append(roc_auc_score(true, score))
 
             test_acc_it.append(accuracy)
@@ -189,6 +190,6 @@ def train_using_pretrained_model(images, labels, path, net, epochs=10, learning_
             torch.save(net.state_dict(), path)
             best_accuracy = test_accuracy
 
-    plot_roc(roc, './results/transfer_classifier_roc.pdf', 'Transfer Multi-label Classifier COVID')
-    plot_loss(train_loss, test_loss, './results/transfer_classifier_loss.pdf', 'Transfer Multi-label Classifier COVID')
-    plot_acc(train_acc, test_acc, './results/transfer_classifier_acc.pdf', 'Transfer Multi-label Classifier COVID')
+    plot_roc(roc, './results/transfer_multi_roc_auc.pdf', 'Transfer Multi-label Classifier COVID')
+    plot_loss(train_loss, test_loss, './results/transfer_multi_loss.pdf', 'Transfer Multi-label Classifier COVID')
+    plot_acc(train_acc, test_acc, './results/transfer_multi_acc.pdf', 'Transfer Multi-label Classifier COVID')

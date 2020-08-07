@@ -15,7 +15,7 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(128 * 26 * 26, 512)
         self.fc2 = nn.Linear(512, 128)
         self.fc3 = nn.Linear(128, 64)
-        self.out = nn.Linear(64, 15)
+        self.out = nn.Linear(64, 19)
 
         self.dropout = nn.Dropout(p=0.5)
         self.sigmoid = nn.Sigmoid()
