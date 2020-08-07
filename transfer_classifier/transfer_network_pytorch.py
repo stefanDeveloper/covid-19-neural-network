@@ -90,8 +90,8 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
     torch.save(net.state_dict(), path)
 
     plot_roc(roc, './results/multiple_classifier_roc.pdf')
-    plot_loss(train_loss, test_loss, './results/multiple_classifier_loss.pdf')
-    plot_acc(train_acc, test_acc, './results/multiple_classifier_acc.pdf')
+    plot_loss(train_loss, test_loss, './results/multiple_classifier_loss.pdf', 'Multi-label Classifier NIH')
+    plot_acc(train_acc, test_acc, './results/multiple_classifier_acc.pdf', 'Multi-label Classifier NIH')
 
     return net
 
@@ -171,5 +171,5 @@ def train_using_pretrained_model(images, labels, path, net, epochs=10, learning_
             best_accuracy = test_accuracy
 
     plot_roc(roc, './results/transfer_classifier_roc.pdf')
-    plot_loss(train_loss, test_loss, './results/transfer_classifier_loss.pdf')
-    plot_acc(train_acc, test_acc, './results/transfer_classifier_acc.pdf')
+    plot_loss(train_loss, test_loss, './results/transfer_classifier_loss.pdf', 'Transfer Multi-label Classifier COVID')
+    plot_acc(train_acc, test_acc, './results/transfer_classifier_acc.pdf', 'Transfer Multi-label Classifier COVID')

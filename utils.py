@@ -24,13 +24,13 @@ def plot_roc(roc, path):
     plt.show()
 
 
-def plot_loss(train_loss, test_loss, path):
+def plot_loss(train_loss, test_loss, path, name):
     plt.plot(train_loss, label='Training loss')
     plt.plot(test_loss, label='Validation loss')
     plt.legend(frameon=False)
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
-    plt.title('ROC curve')
+    plt.title(f'Loss of' + name)
     plt.savefig(path)
     plt.show()
 
@@ -41,7 +41,7 @@ def plot_acc(train_acc, test_acc, path, name):
     plt.legend(frameon=False)
     plt.ylabel('Percentage')
     plt.xlabel('Epoch')
-    plt.title(f'Binary accuracy of')
+    plt.title(f'Binary accuracy of' + name)
     plt.savefig(path)
     plt.show()
 
