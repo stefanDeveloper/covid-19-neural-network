@@ -3,22 +3,23 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 
 
-def plot_roc_binary(true, score, path):
+def plot_roc_binary(true, score, path, name):
     for ix, (tr, sc) in enumerate(zip(true, score)):
         fpr, tpr, thresholds = metrics.roc_curve(tr, sc)
         plt.plot(fpr, tpr, label=f'Epoch {(ix + 1) * 10}')
     plt.xlabel('False positive rate')
     plt.ylabel('True positive rate')
-    plt.title('ROC curve')
+    plt.title('ROC curve of ' + name)
     plt.legend(loc='best')
     plt.savefig(path)
     plt.show()
 
 
-def plot_roc(roc, path):
-    plt.plot(roc, label='ROC')
+def plot_roc(roc, path, name):
+    plt.plot(roc, label='ROC AUC')
     plt.legend(frameon=False)
-    plt.ylabel('ROC')
+    plt.ylabel('ROC AUC')
+    plt.title('ROC AUC Score of ' + name)
     plt.xlabel('Epoch')
     plt.savefig(path)
     plt.show()
@@ -30,7 +31,7 @@ def plot_loss(train_loss, test_loss, path, name):
     plt.legend(frameon=False)
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
-    plt.title(f'Loss of' + name)
+    plt.title(f'Loss of ' + name)
     plt.savefig(path)
     plt.show()
 
@@ -41,7 +42,7 @@ def plot_acc(train_acc, test_acc, path, name):
     plt.legend(frameon=False)
     plt.ylabel('Percentage')
     plt.xlabel('Epoch')
-    plt.title(f'Binary accuracy of' + name)
+    plt.title(f'Binary accuracy of ' + name)
     plt.savefig(path)
     plt.show()
 

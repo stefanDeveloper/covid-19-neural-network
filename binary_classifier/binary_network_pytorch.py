@@ -106,7 +106,7 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
         print(true.shape)
 
 
-        plot_roc_binary(true, score, './results/simple_classifier_roc.pdf')
+        plot_roc_binary(true, score, './results/simple_classifier_roc.pdf', 'Simple Binary Classifier')
     plot_loss(train_loss, test_loss, './results/simple_classifier_loss.pdf', 'Simple Binary Classifier')
     plot_acc(train_acc, test_acc, './results/simple_classifier_acc.pdf', 'Simple Binary Classifier')
 

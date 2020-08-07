@@ -30,6 +30,9 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
 
     # Train the model
     for epoch in range(epochs):
+        train_loss_it, train_acc_it = [], []
+        test_loss_it, test_acc_it = [], []
+        roc_score_it, roc_true_it = [], []
         net.train()
         total_step = len(train_loader)
         for i, (images, labels) in enumerate(train_loader):
@@ -55,9 +58,11 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
             print('[Train] Epoch [{}/{}], Step [{}/{}], Train-Loss: {:.4f}, Train-Acc: {:.2f}'
                   .format(epoch + 1, epochs, i + 1, total_step, loss.item(), accuracy))
 
-            if i % total_step == 0:
-                train_acc.append(accuracy)
-                train_loss.append(loss)
+            train_acc_it.append(accuracy)
+            train_loss_it.append(loss.item())
+
+        train_acc.append(np.mean(np.array(train_acc_it)))
+        train_loss.append(np.mean(np.array(train_loss_it)))
 
         net.eval()
         with torch.no_grad():
@@ -77,19 +82,23 @@ def train_model(images, labels, path, epochs=10, learning_rate=0.0001, batch_siz
                 accuracy = 100 * correct / total
 
                 if i % total_step == 0:
-                    test_acc.append(accuracy)
-                    test_loss.append(loss)
                     true = np.array(labels).reshape(-1)
                     score = np.array(predicted).reshape(-1)
                     roc.append(roc_auc_score(true, score))
 
+                test_acc_it.append(accuracy)
+                test_loss_it.append(loss.item())
+
                 print('[Test] Epoch [{}/{}], Step [{}/{}], Train-Loss: {:.4f}, Train-Acc: {:.2f}'
                       .format(epoch + 1, epochs, i + 1, total_step, loss.item(), accuracy))
+
+            test_acc.append(np.mean(np.array(test_acc_it)))
+            test_loss.append(np.mean(np.array(test_loss_it)))
 
     # Save the model checkpoint
     torch.save(net.state_dict(), path)
 
-    plot_roc(roc, './results/multiple_classifier_roc.pdf')
+    plot_roc(roc, './results/multiple_classifier_roc.pdf', 'Multi-label Classifier NIH')
     plot_loss(train_loss, test_loss, './results/multiple_classifier_loss.pdf', 'Multi-label Classifier NIH')
     plot_acc(train_acc, test_acc, './results/multiple_classifier_acc.pdf', 'Multi-label Classifier NIH')
 
@@ -115,6 +124,9 @@ def train_using_pretrained_model(images, labels, path, net, epochs=10, learning_
     test_loader = torch.utils.data.DataLoader(test_data, shuffle=True, batch_size=batch_size)
 
     for epoch in range(epochs):
+        train_loss_it, train_acc_it = [], []
+        test_loss_it, test_acc_it = [], []
+        roc_score_it, roc_true_it = [], []
         total_step = len(train_loader)
         for i, (images, labels) in enumerate(train_loader):
             images = images.reshape(len(images), 1, 224, 224)
@@ -136,9 +148,11 @@ def train_using_pretrained_model(images, labels, path, net, epochs=10, learning_
             print('Epoch [{}/{}], Step [{}/{}], Train-Loss: {:.4f}, Train-Acc: {:.2f} %'
                   .format(epoch + 1, epochs, i + 1, total_step, loss.item(), accuracy))
 
-            if i % total_step == 0:
-                train_acc.append(accuracy)
-                train_loss.append(loss)
+            train_acc_it.append(accuracy)
+            train_loss_it.append(loss.item())
+
+        train_acc.append(np.mean(np.array(train_acc_it)))
+        train_loss.append(np.mean(np.array(train_loss_it)))
 
         total = 0.0
         correct = 0.0
@@ -156,20 +170,25 @@ def train_using_pretrained_model(images, labels, path, net, epochs=10, learning_
             accuracy = 100 * correct / total
 
             if i % total_step == 0:
-                test_acc.append(accuracy)
-                test_loss.append(loss)
                 true = np.array(labels).reshape(-1)
                 score = np.array(predicted).reshape(-1)
                 roc.append(roc_auc_score(true, score))
 
+            test_acc_it.append(accuracy)
+            test_loss_it.append(loss.item())
+
         test_accuracy = 100 * correct / total
 
+        test_acc.append(np.mean(np.array(test_acc_it)))
+        test_loss.append(np.mean(np.array(test_loss_it)))
+
         print('[Test] Epoch [{}/{}], Acc: {:.2f}'.format(epoch + 1, epochs, test_accuracy))
+
 
         if test_accuracy > best_accuracy:
             torch.save(net.state_dict(), path)
             best_accuracy = test_accuracy
 
-    plot_roc(roc, './results/transfer_classifier_roc.pdf')
+    plot_roc(roc, './results/transfer_classifier_roc.pdf', 'Transfer Multi-label Classifier COVID')
     plot_loss(train_loss, test_loss, './results/transfer_classifier_loss.pdf', 'Transfer Multi-label Classifier COVID')
     plot_acc(train_acc, test_acc, './results/transfer_classifier_acc.pdf', 'Transfer Multi-label Classifier COVID')
